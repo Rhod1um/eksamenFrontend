@@ -1,0 +1,28 @@
+function fetchAny(url) {
+    console.log(url)
+    return fetch(url).then((response) => response.json())
+}
+
+async function fetchData(){
+
+    const url = "http://localhost:8080/getAllProducts" /* husk at skrive den rigtige endpoint */
+
+    const data = await fetchAny(url)
+
+    data.forEach(putDataInDropdown)
+
+}
+
+function putDataInDropdown(data){
+
+    const dropdown = document.querySelector("select")
+
+    const option = document.createElement("option")
+    option.innerHTML = data.name
+    option.value = JSON.stringify(data)
+
+    dropdown.appendChild(option)
+
+}
+
+fetchData()
