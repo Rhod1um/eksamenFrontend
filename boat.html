@@ -33,7 +33,6 @@
     <dialog id="dialog-create">
         <h2>Opret båd</h2>
         <form id="form-create"> <!--lav id så vi kan hente i js, submit-->
-            <h2>Opret båd</h2>
             <label for="create-name">Navn</label>
             <input type="text" id="create-name" name="name" placeholder="navn">
 
@@ -48,14 +47,14 @@
     </dialog>
 
     <dialog id="dialog-update"> <!--skriv open for at teste om dialog er der-->
-        <h2>Rediger parent1</h2>
+        <h2>Rediger båd</h2>
         <form id="form-update">
             <label for="update-name">Navn</label>
             <input type="text" id="update-name" name="name" placeholder="navn">
 
             <label for="update-boattype">Bådtype</label>
             <select name="boatType" id="update-boattype">
-                <option selected disabled>Vælg bådtype</option>
+                <option value="">Vælg bådtype</option>
             </select>
             <button>Færdig</button>
             <button type="button" class="btn-cancel">Annuller</button>

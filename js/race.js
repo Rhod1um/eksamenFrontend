@@ -155,7 +155,7 @@ function showDeleteDialog(object){
     // called when delete button is clicked
     selectedId = object.raceId //"gemmer" id på selected teacher når man trykker update
     //vis navn af person/ting som slettes
-    document.querySelector("#dialog-delete-name").textContent = object.date
+    document.querySelector("#dialog-delete-name").textContent = "kapsejlads d. " + object.date
     // show delete dialog
     document.querySelector("#dialog-delete").showModal()
 

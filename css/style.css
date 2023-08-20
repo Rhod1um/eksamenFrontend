@@ -30,12 +30,7 @@ h1 {
     color: black;
 }
 
-h2 {
-    font-weight: 500;
-    letter-spacing: 0.1px;
-}
-
-h3 {
+h2, h3, h4 {
     font-weight: 500;
     letter-spacing: 0.1px;
 }

@@ -6,9 +6,10 @@ const endpointBoat = "http://localhost:8080/boat"
 const endpointRace = "http://localhost:8080/race"
 
 let fetchedList = []
-let parent1List = []
+let boatList = []
 let raceList = []
 let selectedId
+
 
 window.addEventListener("load", initApp)
 
@@ -38,12 +39,12 @@ async function updateDropdown(){
     document.querySelector("#create-race").innerHTML = ""
     document.querySelector("#update-race").innerHTML = ""
 
-    parent1List = await get(endpointBoat)
-    console.log(parent1List)
+    boatList = await get(endpointBoat)
+    console.log(boatList)
     raceList = await get(endpointRace)
     console.log(raceList)
 
-    createDropdownParent1(parent1List)
+    createDropdownBoat(boatList)
     createDropdownRace(raceList)
 }
 //fetched data som skal displayes i tabel
@@ -62,8 +63,7 @@ function createTable(fetchedList) {
             <td>${object.point}</td>
             <td>${object.boat.boatType.name}</td>
             <td>${object.boat.name}</td> <!--hvis den siger cannot find name er det fordi der er oprettet child uden parent på-->
-            <td>${object.race.date}</td>
-
+            <td>${object.race.date}</td> <!--race virker ikke fordi det er noget på promise, skal hedde noget andet her-->
             <td>
                 <button class="btn-delete">Slet</button> <!--kopier "sikker på du vil slette" dialog fra tidligere sps-->
             </td>
@@ -83,10 +83,10 @@ function createTable(fetchedList) {
             })
     }
 }
-function createDropdownParent1(parent1List){
+function createDropdownBoat(boatList){
     let html = "";
 
-    for (const object of parent1List) {
+    for (const object of boatList) {
         //html += /*html*/ `<option value="${object.parent1Id}">${object.name}</option>`;
         const dropdown = document.querySelector("#create-boat")
 
@@ -96,8 +96,7 @@ function createDropdownParent1(parent1List){
 
         dropdown.appendChild(option)
     }
-    for (const object of parent1List) {
-        //html += /*html*/ `<option value="${object.parent1Id}">${object.name}</option>`;
+    for (const object of boatList) {
         const dropdown = document.querySelector("#update-boat")
 
         const option = document.createElement("option")
@@ -114,7 +113,6 @@ function createDropdownRace(raceList){
     let html = "";
 
     for (const object of raceList) {
-        //html += /*html*/ `<option value="${object.parent1Id}">${object.name}</option>`;
         const dropdown = document.querySelector("#create-race")
 
         const option = document.createElement("option")
@@ -124,7 +122,6 @@ function createDropdownRace(raceList){
         dropdown.appendChild(option)
     }
     for (const object of raceList) {
-        //html += /*html*/ `<option value="${object.parent1Id}">${object.name}</option>`;
         const dropdown = document.querySelector("#update-race")
 
         const option = document.createElement("option")
@@ -151,35 +148,40 @@ function showUpdateDialog(object){
     console.log(object) //her lægger vi ting i felterne
     selectedId = object.participantId //"gemmer" id på selected teacher når man trykker update
     const form = document.querySelector("#form-update")
-    form.name.value = object.name
+    form.point.value = object.point
+    const boat = document.querySelector("#update-boat option")
+    boat.value = JSON.stringify(object.boat)
+    boat.innerHTML = object.boat.name
+
+    console.log(object.boat)
+    const race = document.querySelector("#update-race option")
+    race.value = JSON.stringify(object.race)
+    race.innerHTML = object.race.date
 
     document.querySelector("#dialog-update").showModal()
 }
 //send det nye for update, kaldes i initApp
 function updateSubmit(event){
     event.preventDefault()
-    const form1 = event.currentTarget;
-
-    const formData = new FormData(form1)
-    update(formData)
+    //const form1 = event.currentTarget;
+    //const formData = new FormData(form1)
+    //update(formData)
 
     const form = event.target
     const point = form.point.value
     const boat = form.boat.value
-    const race = form.race.value
-    update(point, boat, race)
+    const race = form.race.value //race er promise
+    update(selectedId, point, boat, race)
 }
 //send PUT
-async function update(participantId, point, boat, race){
+async function update(selectedId, point, boat, race){
     document.querySelector("#dialog-update").close() //lukker dialog når man har submitted
-    console.log("boat")
-    console.log(boat)
-    const parsedBoat = JSON.parse(boat)
+    const parsedBoat = JSON.parse(boat) //problemet er at den ikke tager default value ind i dropdown ved update
     const parsedRace = JSON.parse(race)
     console.log(parsedBoat)
     console.log(parsedRace)
     const participantObject = {
-        participantId: participantId,
+        participantId: selectedId,
         point: point,
         boat: parsedBoat,
         race: parsedRace
@@ -202,8 +204,7 @@ async function update(participantId, point, boat, race){
 //kaldes i initApp
 function createSubmit(event){
     event.preventDefault()
-    const form1 = event.currentTarget;
-
+    //const form1 = event.currentTarget;
     //const formData = new FormData(form1)
     //create(formData)
 
@@ -243,26 +244,20 @@ async function create(point, boat, race){
     }
 }
 //sorter alfabetisk
-function sortByName(){ //hvis vi ikke sortere så sorteres det på mærkelig måde af firebase
-    fetchedList.sort((object1, object2) => object1.boat.name.localeCompare(object2.boat.name))
-
-    //ikke arrow:
-    //teachers.sort(teacher1, teacher2){
-    //    return teacher1.name.localeCompare(teacher2.name)
-    //}
+function sortByName(){
+    fetchedList.sort((object1, object2) => object1.race.date.localeCompare(object2.race.date))
 }
 function deleteCancelClicked() {
-    document.querySelector("#dialog-delete").close(); // close dialog
+    document.querySelector("#dialog-delete").close();
 }
 function updateCancelClicked() {
-    document.querySelector("#dialog-update").close(); // close dialog
+    document.querySelector("#dialog-update").close();
 }
 
 function showDeleteDialog(object){
-    // called when delete button is clicked
-    selectedId = object.participantId //"gemmer" id på selected teacher når man trykker update
+    selectedId = object.participantId
     //vis navn af person/ting som slettes
-    document.querySelector("#dialog-delete-name").textContent = object.name
+    document.querySelector("#dialog-delete-name").textContent = object.boat.name + " " + object.race.date
     // show delete dialog
     document.querySelector("#dialog-delete").showModal()
 

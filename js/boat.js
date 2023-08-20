@@ -5,7 +5,7 @@ const endpoint = "http://localhost:8080/boat"
 const endpointBoatType = "http://localhost:8080/boattype"
 
 let fetchedList = []
-let parent1List = []
+let boatTypeList = []
 let selectedId
 
 window.addEventListener("load", initApp)
@@ -34,10 +34,10 @@ async function updateDropdown(){
     document.querySelector("#create-boattype").innerHTML = ""
     document.querySelector("#update-boattype").innerHTML = ""
 
-    parent1List = await get(endpointBoatType)
-    console.log(parent1List)
+    boatTypeList = await get(endpointBoatType)
+    console.log(boatTypeList)
 
-    createDropdownParent1(parent1List)
+    createDropdownBoat(boatTypeList)
 }
 //fetched data som skal displayes i tabel
 async function get(endpoint) {
@@ -56,7 +56,7 @@ function createTable(fetchedList) {
             <td>${object.boatType.name}</td> <!--hvis den siger cannot find name er det fordi der er oprettet child uden parent på-->
 
             <td>
-                <button class="btn-delete">Slet</button> <!--kopier "sikker på du vil slette" dialog fra tidligere sps-->
+                <button class="btn-delete">Slet</button> 
             </td>
             <td>
                 <button class="btn-update">Rediger</button>
@@ -74,10 +74,10 @@ function createTable(fetchedList) {
             })
     }
 }
-function createDropdownParent1(parent1List){
+function createDropdownBoat(boatTypeList){
     let html = "";
 
-    for (const object of parent1List) {
+    for (const object of boatTypeList) {
         //html += /*html*/ `<option value="${object.parent1Id}">${object.name}</option>`;
         const dropdown = document.querySelector("#create-boattype")
 
@@ -87,8 +87,7 @@ function createDropdownParent1(parent1List){
 
         dropdown.appendChild(option)
     }
-    for (const object of parent1List) {
-        //html += /*html*/ `<option value="${object.parent1Id}">${object.name}</option>`;
+    for (const object of boatTypeList) {
         const dropdown = document.querySelector("#update-boattype")
 
         const option = document.createElement("option")
@@ -111,12 +110,19 @@ async function deleteObject(id){
     }
 }
 //update dialog popup med hentet data om objektet. det her gøres pga closuren, mens form-update-knap-eventlistener er i initApp
-function showUpdateDialog(object){
+function showUpdateDialog(object){ //objekt lægges i felterne
     console.log(object) //her lægger vi ting i felterne
     selectedId = object.boatId //"gemmer" id på selected teacher når man trykker update
     const form = document.querySelector("#form-update")
     form.name.value = object.name
+    const selectElement = document.querySelector("#update-boattype")
+    const boatType = selectElement.querySelector(`option`); //alt til ("#update-boattype option")
 
+    boatType.value = JSON.stringify(object.boatType)
+    boatType.innerHTML = object.boatType.name
+    console.log("boatType")
+    console.log(boatType.value)
+    console.log(boatType)
     document.querySelector("#dialog-update").showModal()
 }
 //send det nye for update, kaldes i initApp
@@ -125,13 +131,11 @@ function updateSubmit(event){
     const form = event.target
     const name = form.name.value
     const boatType = form.boatType.value
-    console.log(name)
     update(selectedId, name, boatType)
 }
 //send PUT
 async function update(boatId, name, boatType){
     document.querySelector("#dialog-update").close() //lukker dialog når man har submitted
-    console.log(boatId)
     const parsedBoatType = JSON.parse(boatType)
     console.log(parsedBoatType)
     const boatObject = {
@@ -157,10 +161,9 @@ async function update(boatId, name, boatType){
 //kaldes i initApp
 function createSubmit(event){
     event.preventDefault()
-    const form1 = event.currentTarget;
-
-    const formData = new FormData(form1)
-    create(formData)
+    //const form1 = event.currentTarget;
+    //const formData = new FormData(form1)
+    //create(formData)
 
     const form = event.target
     const name = form.name.value
@@ -192,27 +195,21 @@ async function create(name, boatType){
     }
 }
 //sorter alfabetisk
-function sortByName(){ //hvis vi ikke sortere så sorteres det på mærkelig måde af firebase
+function sortByName(){
     fetchedList.sort((object1, object2) => object1.name.localeCompare(object2.name))
-
-    //ikke arrow:
-    //teachers.sort(teacher1, teacher2){
-    //    return teacher1.name.localeCompare(teacher2.name)
-    //}
 }
 function deleteCancelClicked() {
-    document.querySelector("#dialog-delete").close(); // close dialog
+    document.querySelector("#dialog-delete").close()
 }
 function updateCancelClicked() {
-    document.querySelector("#dialog-update").close(); // close dialog
+    document.querySelector("#dialog-update").close()
 }
 
 function showDeleteDialog(object){
-    // called when delete button is clicked
-    selectedId = object.boatId //"gemmer" id på selected teacher når man trykker update
+    //delete button clicked
+    selectedId = object.boatId //"gemmer" id på selected boat når man trykker update
     //vis navn af person/ting som slettes
     document.querySelector("#dialog-delete-name").textContent = object.name
-    // show delete dialog
     document.querySelector("#dialog-delete").showModal()
 
     document.querySelector("#form-delete").addEventListener("submit", function(){

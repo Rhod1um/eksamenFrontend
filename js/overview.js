@@ -13,9 +13,6 @@ let countBoatType
 let countBoat
 let countParticipant
 
-const endpointParticipantPoint = "http://localhost:8080/participant/point/2"
-let point
-
 let boatList = []
 let sumPoint = []
 
@@ -33,8 +30,6 @@ async function initApp() {
     boatList = await get(endpointBoatGet)
     let boatIds = boatList.map(boat => boat.boatId);
 
-    console.log("point")
-    await get(endpointParticipantPoint)
 }
 
 function displayCounts(){
